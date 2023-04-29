@@ -5,12 +5,6 @@
 #include"direction.h"
 
 class Object{
-private:
-    int x, y;
-    int width, height;
-    Direction direction;
-    int speed;
-
 public:
     void setPosition(int x, int y);
     int getX();
@@ -28,6 +22,12 @@ public:
 
     void move();
     void render();
+
+private:
+    int x, y;
+    int width, height;
+    Direction direction;
+    int speed;
 };
 
 #endif

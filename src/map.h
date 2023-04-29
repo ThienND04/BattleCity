@@ -4,10 +4,6 @@
 #include<SDL2/SDL.h>
 
 class Map{
-private:
-    int width;
-    int height;
-
 public:
     void setSize(int nWidth, int nHeight);
     int getWidth();
@@ -15,6 +11,10 @@ public:
 
     bool isValid(int x, int y);
     void render();
+    
+private:
+    int width;
+    int height;
 };
 
 #endif 

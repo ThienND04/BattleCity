@@ -28,6 +28,7 @@ int Object::getHeight(){
 void Object::setDirection(Direction newDirection){
     direction = newDirection;
 }
+
 Direction Object::getDirection(){
     return direction;
 }
