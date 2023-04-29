@@ -17,7 +17,7 @@ void Game::init(){
 
 // show main menu to screen 
 void Game::showMenu(){
-    menuTexture.loadFromFile("images/menu/mainMenu.png");
+    menuTexture.loadFromFile("images/menu/start_menu.png", SDL_FALSE);
 
     for(int i = 1; i <= menuTexture.getHeight(); i += 3){
         clearScreen();
@@ -35,12 +35,12 @@ Game::Game(){
 
     // game loop
     while(! quit){
-        
+        updateInput();
     }
 }
 
 Game::~Game(){
-
+    SDLExit();
 }
 
 void Game::updateInput(){

@@ -11,7 +11,7 @@ public:
     Texture();
     ~Texture();
 
-    bool loadFromFile(std::string path);
+    bool loadFromFile(std::string path, SDL_bool colorKeying);
     void render(int x, int y, SDL_Rect* clip);
     void free();
 

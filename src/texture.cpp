@@ -10,7 +10,7 @@ Texture::~Texture(){
     free();
 }
 
-bool Texture::loadFromFile(std::string path){
+bool Texture::loadFromFile(std::string path, SDL_bool colorKeying){
     SDL_Texture* newTexture = NULL;
     free();
     
@@ -20,7 +20,7 @@ bool Texture::loadFromFile(std::string path){
     }
     else{
         // cat phan thua cua anh
-        SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 255, 255, 255));
+        SDL_SetColorKey(loadedSurface, colorKeying, SDL_MapRGB(loadedSurface->format, 255, 255, 255));
         newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
 
         if(newTexture == NULL){
