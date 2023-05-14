@@ -2,5 +2,8 @@
 
 #define MENU_H
 
+class Menu{
+
+};
 
 #endif

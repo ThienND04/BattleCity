@@ -12,7 +12,12 @@ public:
     ~Texture();
 
     bool loadFromFile(std::string path, SDL_bool colorKeying);
+
+    //Creates image from font string
+    bool loadFromRenderedText( std::string textureText, SDL_Color textColor );
+    
     void render(int x, int y, SDL_Rect* clip);
+    void renderEx(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center);
     void free();
 
     // get image dimensions

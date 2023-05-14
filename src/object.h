@@ -3,9 +3,14 @@
 #define OBJECT_H
 #include<SDL2/SDL.h>
 #include"direction.h"
+#include"texture.h"
 
 class Object{
 public:
+    Object(){};
+    Object(int x, int y, Direction direction);
+    ~Object();
+
     void setPosition(int x, int y);
     int getX();
     int getY();
@@ -20,8 +25,11 @@ public:
     void setSpeed(int newSpeed);
     int getSpeed();
 
+    // di chuyen
     void move();
-    void render();
+
+    // xac dinh va cham
+    bool hasCollision(SDL_Rect otherObject);
 
 private:
     int x, y;

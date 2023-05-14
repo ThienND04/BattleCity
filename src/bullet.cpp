@@ -1,9 +1,12 @@
 #include"bullet.h"
 
 Bullet::Bullet(int x, int y, Direction direction){
-    setPosition(x, y);
-    setDirection(direction);
-    setSpeed(speed);
+    Object(x, y, direction);
+    printf("Bullet init!\n");
+    texture.loadFromFile(bulletImgPath, SDL_TRUE);
+    setSpeed(BULLET_SPEED);
+
+    clip = {direction * BULLET_SIZE, 0, BULLET_SIZE, BULLET_SIZE};
 }
 
 Bullet::~Bullet(){
@@ -11,9 +14,21 @@ Bullet::~Bullet(){
 }
 
 void Bullet::render(){
-    printf("Rendering this bullet\n");
+    texture.loadFromFile(bulletImgPath, SDL_FALSE);
+    texture.render(getX(), getY(), &clip);
 }
 
 void Bullet::free(){
-    printf("Free bullet\n");
+    // printf("Free bullet\n");
+    texture.free();
+}
+
+
+bool Bullet::hasCollision(SDL_Rect otherObject){
+    SDL_Rect rect1 = {getX(), getY(), BULLET_SIZE, BULLET_SIZE};
+    return SDL_HasIntersection(&rect1, &otherObject);
+}
+
+SDL_Rect Bullet::getRect(){
+    return {getX(), getY(), BULLET_SIZE, BULLET_SIZE};
 }

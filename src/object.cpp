@@ -1,5 +1,14 @@
 #include"object.h"
 
+Object::Object(int x, int y, Direction direction){
+    setPosition(x, y);
+    setDirection(direction);
+}
+
+Object::~Object(){
+    
+}
+
 void Object::setPosition(int x, int y){
     this->x = x;
     this->y = y;
@@ -55,8 +64,4 @@ void Object::move(){
             setPosition(x - speed, y);
             break;
     }
-}
-
-void Object::render(){
-    printf("This object is redering ...\n");
 }

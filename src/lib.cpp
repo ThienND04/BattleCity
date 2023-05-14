@@ -2,6 +2,7 @@
 
 SDL_Window* gWindow = NULL;
 SDL_Renderer* gRenderer = NULL;
+TTF_Font* gFont = NULL;
 
 bool SDLInit(std::string title){
     bool success = true;
@@ -33,15 +34,37 @@ bool SDLInit(std::string title){
                     printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
                     success = false;
                 }
+
+                 //Initialize SDL_ttf
+                if( TTF_Init() == -1 )
+                {
+                    printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+                    success = false;
+                }
             }
         }
     }
+
+    //Open the font
+    gFont = TTF_OpenFont( "fonts/prstart.ttf", 12 );
+    if( gFont == NULL )
+    {
+        printf( "Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        success = false;
+    }
+
     return success;
 }
 
-bool SDLExit(){
+void SDLExit(){
+    TTF_CloseFont(gFont);
+    gFont = NULL;
     SDL_DestroyRenderer(gRenderer);
     gRenderer = NULL;
     SDL_DestroyWindow(gWindow);
     gWindow = NULL;
+
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
 }
