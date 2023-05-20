@@ -34,7 +34,11 @@ public:
     Game();
     ~Game();
 
+    void reset();
+
     bool isGameOver();
+
+    void gameOver();
 
     void init();
 
@@ -46,9 +50,10 @@ public:
 
     void spawnEnemy(SDL_Rect spawnArea);
 
-    // update all bullets
+    // update objects
     void bulletsUpdate();
     void enemiesUpdate();
+    void explosionsUpdate();
 
     void delay();
 
@@ -59,6 +64,10 @@ public:
     void scoreRender();
 
     void objectsRender();
+
+    void playerUpdate();
+
+    void test();
 
 private:
     // game state
@@ -75,9 +84,13 @@ private:
     // data
     int mapWidth;
     int mapHeight;
+
+    Tank player;
+
     std::vector<Enemy> enemies;
     std::vector<Bullet> bullets;
     std::vector<Bullet> enemyBullets;
+    std::vector<Explosion> explosions;
     Map map;
     int score;
     int hightScore;

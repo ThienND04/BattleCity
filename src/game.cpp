@@ -8,6 +8,7 @@ void unorderErase(std::vector<T>& arr, int i){
 }
 
 void Game::clearScreen(){
+    // SDL_SetRenderDrawColor(gRenderer, 149, 149, 149, 0xFF);
     SDL_SetRenderDrawColor(gRenderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(gRenderer);
 }
@@ -59,17 +60,21 @@ void Game::showMenu(){
     }
 }
 
-void test(){
-    std::vector<Explosion> explosions;
-    explosions.push_back(Explosion(100, 100, Explosion::SMALL_EXPLOSION));
-    explosions.push_back(Explosion(200, 200, Explosion::BIG_EXPLOSION));
-    explosions.back().setPos(200, 200);
-    explosions.back().setType(Explosion::BIG_EXPLOSION);
+void Game::test(){
+    // std::vector<Explosion> explosions;
+    // explosions.push_back(Explosion(100, 100, Explosion::SMALL_EXPLOSION));
+    // // explosions.push_back(Explosion(200, 200, Explosion::BIG_EXPLOSION));
+    // explosions.back().setPos(200, 200);
+    // explosions.back().setType(Explosion::SMALL_EXPLOSION);
 
-    for(Explosion explosion: explosions){
-        explosion.render();
-        printf("explosion render!\n");
-    }
+    // for(Explosion& explosion: explosions){
+    //     explosion.render();
+    //     // printf("explosion pos: %d %d\n", explosion.getX(), explosion.getY());
+    // }
+    // Texture att;
+    // att.loadFromFile("images/animation/big_explosion_1.png", SDL_TRUE);
+
+    // att.render(200, 200, NULL);
 }
 
 Game::Game(){
@@ -78,10 +83,10 @@ Game::Game(){
     // game loop
     while(! quit){
         clearScreen();
-
-        test();
         
         update();
+
+        // test();
 
         SDL_RenderPresent(gRenderer);
         delay();
@@ -157,6 +162,7 @@ void Game::objectsRender(){
 }
 
 void Game::onePlayer(){
+    reset();
     printf("One player mode\n");
     SDL_RenderClear(gRenderer);
 
@@ -167,25 +173,17 @@ void Game::onePlayer(){
 
     printf("Loaded map\n");
 
-    // set player's tank
-    Tank player;
-    player.setTankColor(Tank::YELLOW);
-    player.setDirection(UP);
-    player.setPosition(0, 0);
-    player.setSpeed(3);
-
-    bullets.clear();
-
     while(! quit && ! isGameOver()){
         updateInput();
         clearScreen();
 
-        player.step(&gameInput, &map, &bullets);
+        playerUpdate();
         gameInput.clear();
         
         enemiesUpdate();
         player.render();
         bulletsUpdate();
+        explosionsUpdate();
 
 
         map.render();
@@ -194,6 +192,10 @@ void Game::onePlayer(){
 
         SDL_RenderPresent(gRenderer);
         delay();
+    }
+
+    if(isGameOver()){
+        gameOver();
     }
 }
 
@@ -212,13 +214,29 @@ void Game::bulletsUpdate(){
             if(bullets[i].hasCollision(enemies[j].getRect())){
                 colide = true;
 
-                printf("Bullet colide a tank!\n");
+                // printf("Bullet colide a tank!\n");
 
                 // destroy block if it isn't an iron block...
+
+                explosions.push_back(Explosion(enemies[j].getX(), enemies[j].getY(), Explosion::BIG_EXPLOSION));
+
+                explosions.back().setPos(enemies[j].getX() + (Enemy::TANK_SIZE - explosions.back().getExSize()) / 2 + 1,\
+                        enemies[j].getY() + (Enemy::TANK_SIZE - explosions.back().getExSize()) / 2 + 1);
+                explosions.back().setType(Explosion::BIG_EXPLOSION);
+
                 unorderErase(enemies, j --);
+
+                // increase score
+                score += 100;
             }
         }
         if(colide){
+            // printf("Create an explosion!\n");
+            explosions.push_back(Explosion(bullets[i].getX(), bullets[i].getY(), Explosion::SMALL_EXPLOSION));
+
+            explosions.back().setPos(bullets[i].getX() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1,\
+                        bullets[i].getY() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1);
+            explosions.back().setType(Explosion::SMALL_EXPLOSION);
             unorderErase(bullets, i --);
         }
     }
@@ -244,6 +262,12 @@ void Game::bulletsUpdate(){
         }
 
         if(colide || ! map.isInMap(bullets[i].getRect())){
+            explosions.push_back(Explosion(bullets[i].getX(), bullets[i].getY(), Explosion::SMALL_EXPLOSION));
+
+            explosions.back().setType(Explosion::SMALL_EXPLOSION);
+            explosions.back().setPos(bullets[i].getX() + (Bullet::BULLET_SIZE - explosions[i].getExSize()) / 2 + 1,\
+                        bullets[i].getY() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1);
+
             unorderErase(bullets, i --);
             continue;
         }
@@ -251,7 +275,7 @@ void Game::bulletsUpdate(){
         bullets[i].render();
     }
 
-    // update enemyBillets
+    // update enemyBullets
 
     for(int i = 0; i < enemyBullets.size(); i ++){
         bool colide = false;
@@ -265,13 +289,20 @@ void Game::bulletsUpdate(){
 
                 // destroy block if it isn't an iron block...
                 if(blocks->at(j).getBlockType() != Block::BlockType::IRON) {
-                    unorderErase(*blocks, j);
-                    j --;
+                    if(blocks->at(j).getBlockType() == Block::FLAG) {
+                        blocks->at(j).setBlockType(Block::BROKEN_FLAG);
+                    }
+                    else unorderErase(*blocks, j --);
                 }
             }
         }
 
         if(colide || ! map.isInMap(enemyBullets[i].getRect())){
+            explosions.push_back(Explosion(enemyBullets[i].getX(), enemyBullets[i].getY(), Explosion::SMALL_EXPLOSION));
+
+            explosions.back().setType(Explosion::SMALL_EXPLOSION);
+            explosions.back().setPos(enemyBullets[i].getX() + (Bullet::BULLET_SIZE - explosions[i].getExSize()) / 2 + 1,\
+                        enemyBullets[i].getY() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1);
             unorderErase(enemyBullets, i --);
             continue;
         }
@@ -279,7 +310,6 @@ void Game::bulletsUpdate(){
         enemyBullets[i].render();
     }
 }
-
 
 void Game::spawnEnemy(SDL_Rect spawnArea){
     bool ok = false;
@@ -314,12 +344,40 @@ void Game::enemiesUpdate(){
 
     for(Enemy &enemy: enemies){
         enemy.step(&map, &enemyBullets);
-        printf("ENEMY speed: %d\n", enemy.getSpeed());
+
+        if(enemy.hasCollision(player.getRect())){
+            // printf("Colide!!\n");
+            if(enemy.getDirection() == Direction::LEFT){
+                enemy.setPosition(player.getX() + Tank::TANK_SIZE, enemy.getY());
+            }
+            else if(enemy.getDirection() == Direction::RIGHT){
+                enemy.setPosition(player.getX() - Tank::TANK_SIZE, enemy.getY());
+            }
+            else if(enemy.getDirection() == Direction::UP){
+                enemy.setPosition(enemy.getX(), player.getY() + Tank::TANK_SIZE);
+            }
+            else if(enemy.getDirection() == Direction::DOWN){
+                enemy.setPosition(enemy.getX(), player.getY() - Tank::TANK_SIZE);
+            }
+        }
+        // printf("ENEMY speed: %d\n", enemy.getSpeed());
     }
 
     // render enemies
     for(Enemy enemy: enemies){
         enemy.render();
+    }
+}
+
+void Game::explosionsUpdate(){
+    int curTime = SDL_GetTicks();
+    for(int i = 0; i < explosions.size(); i ++){
+        if(explosions[i].isFinish()){
+            unorderErase(explosions, i --);
+        }
+        else {
+            explosions[i].render();
+        }
     }
 }
 
@@ -333,7 +391,75 @@ bool Game::isGameOver(){
 
 void Game::scoreRender(){
     SDL_Color textColor = {255, 255, 255};
-    Texture sc;
-    sc.loadFromRenderedText("Score !", textColor);
-    sc.render(600, 300, NULL);
+    Texture sc, hsc;
+    hsc.loadFromRenderedText("High score", textColor);
+    sc.loadFromRenderedText(std::to_string(score), textColor);
+    // printf("%d\n", (SCREEN_WIDTH + Block::SMALL_BLOCK_SIZE * map.getWidth() - sc.getWidth()) / 2);
+
+    hsc.render((SCREEN_WIDTH + Block::SMALL_BLOCK_SIZE * map.getWidth() - hsc.getWidth()) / 2,\
+         (SCREEN_HEIGHT - hsc.getHeight()) / 3, NULL);
+
+    sc.render((SCREEN_WIDTH + Block::SMALL_BLOCK_SIZE * map.getWidth() - sc.getWidth()) / 2,\
+         (SCREEN_HEIGHT - sc.getHeight()) / 2, NULL);
+}
+
+void Game::playerUpdate(){
+    player.step(&gameInput, &map, &bullets);
+
+    for(Enemy enemy: enemies){
+        if(player.hasCollision(enemy.getRect())){
+            // printf("Colide!!\n");
+            if(player.getDirection() == Direction::LEFT){
+                player.setPosition(enemy.getX() + Tank::TANK_SIZE, player.getY());
+            }
+            else if(player.getDirection() == Direction::RIGHT){
+                player.setPosition(enemy.getX() - Tank::TANK_SIZE, player.getY());
+            }
+            else if(player.getDirection() == Direction::UP){
+                player.setPosition(player.getX(), enemy.getY() + Tank::TANK_SIZE);
+            }
+            else if(player.getDirection() == Direction::DOWN){
+                player.setPosition(player.getX(), enemy.getY() - Tank::TANK_SIZE);
+            }
+        }
+    }
+}
+
+void Game::reset(){
+    // set player's tank
+    player.setTankColor(Tank::YELLOW);
+    player.setDirection(UP);
+    player.setPosition(300, 423);
+    player.setSpeed(4);
+
+    enemies.clear();
+    bullets.clear();
+    enemyBullets.clear();
+    explosions.clear();
+}
+
+void Game::gameOver(){
+    Texture gameOverTexture;
+    SDL_Color textColor = {0xFF, 0, 0, 0xFF};
+    gameOverTexture.loadFromRenderedText("GAME OVER", textColor);
+
+    for(int y = map.getHeight() * Block::SMALL_BLOCK_SIZE; y >= (map.getHeight() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getHeight()) / 2; y --){
+        clearScreen();
+
+        gameOverTexture.render((map.getWidth() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getWidth()) / 2, y, NULL);
+        SDL_RenderPresent(gRenderer);
+        delay();
+    }
+
+    gameOverTexture.loadFromFile("images/game_over.bmp", SDL_TRUE);
+    for(int i = 1; i <= 255; i ++){
+        clearScreen();
+
+        map.render();
+        gameOverTexture.render((map.getWidth() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getWidth()) / 2, \
+                                (map.getHeight() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getHeight()) / 2, NULL);
+
+        SDL_RenderPresent(gRenderer);
+        delay();
+    }
 }

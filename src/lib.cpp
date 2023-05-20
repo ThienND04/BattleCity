@@ -11,6 +11,12 @@ bool SDLInit(std::string title){
         success = false;
     }
     else{
+        //Set texture filtering to linear
+		if( !SDL_SetHint( SDL_HINT_RENDER_SCALE_QUALITY, "1" ) )
+		{
+			printf( "Warning: Linear texture filtering not enabled!" );
+		}
+
         gWindow = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if(gWindow == NULL){
             printf("SDL could not create window! SDL Error: %s\n", SDL_GetError());
@@ -25,7 +31,7 @@ bool SDLInit(std::string title){
             }
             else
             {
-                SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                SDL_SetRenderDrawColor(gRenderer, 149, 149, 149, 0xFF);
                 SDL_RenderClear(gRenderer);
 
                 int imgFlags = IMG_INIT_PNG;

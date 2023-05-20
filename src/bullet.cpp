@@ -2,7 +2,7 @@
 
 Bullet::Bullet(int x, int y, Direction direction){
     Object(x, y, direction);
-    printf("Bullet init!\n");
+    // printf("Bullet init!\n");
     texture.loadFromFile(bulletImgPath, SDL_TRUE);
     setSpeed(BULLET_SPEED);
 

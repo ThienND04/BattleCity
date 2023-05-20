@@ -15,11 +15,23 @@ void Enemy::step(Map* map, std::vector<Bullet>* bullets){
         action.type = Input::Type(rand() % 5 + 1);
     }
 
-    if(action.type == Input::K){
-        shot(bullets);
+    if(action.type == Input::K || canShot()){
+        if(canShot()) shot(bullets);
         lastTime -= actionTime;
     }
     else{
+        if(cnt % DELAY_CLIP == 0){
+            SDL_Rect curClip = getClip();
+            if(cnt / DELAY_CLIP == 0) {
+                curClip.x += TANK_SIZE;
+            }
+            else{
+                curClip.x -= TANK_SIZE;
+            }
+            setClip(curClip);
+        }
+        cnt = (cnt + 1) % (DELAY_CLIP * 2);
+
         if(action.type == Input::W) setDirection(Direction::UP);
         else if(action.type == Input::D) setDirection(Direction::RIGHT);
         else if(action.type == Input::S) setDirection(Direction::DOWN);
@@ -37,7 +49,7 @@ void Enemy::step(Map* map, std::vector<Bullet>* bullets){
             Block block = blocks->at(i);
             SDL_Rect blockRect = block.getRect();
             if(block.getCanColide() && hasCollision(blockRect)){
-                printf("Colide!!\n");
+                // printf("Colide!!\n");
                 if(getDirection() == Direction::LEFT){
                     setPosition(block.getX() + block.getBlockSize(), getY());
                 }

@@ -32,6 +32,9 @@ void Map::init(){
 }
 
 bool Map::loadMapFromFile(std::string path){
+    // clear map
+    data.clear();
+
     // readfile 
     std::ifstream fi(path);
     std::string tmp;

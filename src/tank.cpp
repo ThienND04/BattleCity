@@ -30,16 +30,33 @@ void Tank::shot(std::vector<Bullet>* bullets){
     else {
         bullets->back().setPosition(getX() + (int(getDirection()) % 3) * TANK_SIZE / 2, getY() + (TANK_SIZE - Bullet::BULLET_SIZE) / 2);
     }
+
+
+    // 
+    lastShot = SDL_GetTicks();
 }
 
 void Tank::step(Input* input, Map* map, std::vector<Bullet>* bullets){
+
+    // printf("Tank clip: %d %d\n", clip.x, clip.y);
+    
     if(input->type == Input::NONE) return;
     if(input->type == Input::K) {
-        shot(bullets);
+        if(canShot()) shot(bullets);
         // printf("Bullets's size: %d\n", bullets->size());
         // printf("push back ok\n");
     }
     else{
+        if(cnt % DELAY_CLIP == 0){
+            if(cnt / DELAY_CLIP == 0) {
+                clip.x += TANK_SIZE;
+            }
+            else{
+                clip.x -= TANK_SIZE;
+            }
+        }
+        cnt = (cnt + 1) % (DELAY_CLIP * 2);
+
         if(input->type == Input::W) setDirection(Direction::UP);
         else if(input->type == Input::D) setDirection(Direction::RIGHT);
         else if(input->type == Input::S) setDirection(Direction::DOWN);
@@ -120,4 +137,17 @@ SDL_Rect Tank::getRect(){
 
 void Tank::init(){
     tanksTexture.loadFromFile(TANKS_PATH, SDL_TRUE);
+}
+
+bool Tank::canShot(){
+    int curTime = SDL_GetTicks();
+    return curTime - lastShot >= shotDelay;
+}
+
+SDL_Rect Tank::getClip(){
+    return clip;
+}
+
+void Tank::setClip(SDL_Rect newClip){
+    clip = newClip;
 }
