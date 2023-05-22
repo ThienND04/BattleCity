@@ -11,6 +11,11 @@ public:
     Texture();
     ~Texture();
 
+    //Set blending
+    void setBlendMode( SDL_BlendMode blending );
+
+    void setAlpha(int alpha);
+
     bool loadFromFile(std::string path, SDL_bool colorKeying);
 
     //Creates image from font string

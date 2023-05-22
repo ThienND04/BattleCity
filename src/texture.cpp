@@ -106,3 +106,15 @@ void Texture::free(){
         width = 0;
     }
 }
+
+void Texture::setBlendMode( SDL_BlendMode blending )
+{
+    //Set blending function
+    SDL_SetTextureBlendMode( wrapedTexture, blending );
+}
+
+void Texture::setAlpha( int alpha )
+{
+    //Modulate texture alpha
+    SDL_SetTextureAlphaMod( wrapedTexture, alpha );
+}

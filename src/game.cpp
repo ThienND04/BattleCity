@@ -204,12 +204,12 @@ void Game::twoPlayers(){
 }
 
 void Game::bulletsUpdate(){
-
-    // va cham voi ke dich
+    
     for(int i = 0; i < bullets.size(); i ++){
         bool colide = false;
         bullets[i].move();
 
+        // va cham voi ke dich
         for(int j = 0; j < enemies.size(); j ++){
             if(bullets[i].hasCollision(enemies[j].getRect())){
                 colide = true;
@@ -230,21 +230,9 @@ void Game::bulletsUpdate(){
                 score += 100;
             }
         }
-        if(colide){
-            // printf("Create an explosion!\n");
-            explosions.push_back(Explosion(bullets[i].getX(), bullets[i].getY(), Explosion::SMALL_EXPLOSION));
 
-            explosions.back().setPos(bullets[i].getX() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1,\
-                        bullets[i].getY() + (Bullet::BULLET_SIZE - explosions.back().getExSize()) / 2 + 1);
-            explosions.back().setType(Explosion::SMALL_EXPLOSION);
-            unorderErase(bullets, i --);
-        }
-    }
-    
-    // va cham voi cac block
-    for(int i = 0; i < bullets.size(); i ++){
-        bool colide = false;
 
+        // va cham voi block
         std::vector<Block>* blocks = map.getBlocks();
 
         for(int j = 0; j < blocks->size(); j ++){
@@ -258,6 +246,14 @@ void Game::bulletsUpdate(){
                     }
                     else unorderErase(*blocks, j --);
                 }
+            }
+        }
+
+        // va cham voi dan cua ke dich
+        for(int j = 0; j < enemyBullets.size(); j ++){
+            if(bullets[i].hasCollision(enemyBullets[j].getRect())){
+                colide = true;
+                unorderErase(enemyBullets, j --);
             }
         }
 
@@ -276,7 +272,6 @@ void Game::bulletsUpdate(){
     }
 
     // update enemyBullets
-
     for(int i = 0; i < enemyBullets.size(); i ++){
         bool colide = false;
         enemyBullets[i].move();
@@ -327,7 +322,7 @@ void Game::spawnEnemy(SDL_Rect spawnArea){
         if(! ok) continue;
 
         enemies.push_back(Enemy());
-        printf("Pushed\n");
+        // printf("Pushed\n");
         enemies.back().setPosition(x, y);
         enemies.back().setDirection(RIGHT);
         enemies.back().setTankColor(Tank::TankColor(color));

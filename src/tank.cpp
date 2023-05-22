@@ -73,19 +73,24 @@ void Tank::step(Input* input, Map* map, std::vector<Bullet>* bullets){
         for(int i = 0; i < blocks->size(); i ++) {
             Block block = blocks->at(i);
             SDL_Rect blockRect = block.getRect();
-            if(block.getCanColide() && hasCollision(blockRect)){
-                printf("Colide!!\n");
-                if(getDirection() == Direction::LEFT){
-                    setPosition(block.getX() + block.getBlockSize(), getY());
+            if(hasCollision(blockRect)){
+                if(block.getCanColide()){
+                    printf("Colide!!\n");
+                    if(getDirection() == Direction::LEFT){
+                        setPosition(block.getX() + block.getBlockSize(), getY());
+                    }
+                    else if(getDirection() == Direction::RIGHT){
+                        setPosition(block.getX() - TANK_SIZE, getY());
+                    }
+                    else if(getDirection() == Direction::UP){
+                        setPosition(getX(), block.getY() + block.getBlockSize());
+                    }
+                    else if(getDirection() == Direction::DOWN){
+                        setPosition(getX(), block.getY() - TANK_SIZE);
+                    }
                 }
-                else if(getDirection() == Direction::RIGHT){
-                    setPosition(block.getX() - TANK_SIZE, getY());
-                }
-                else if(getDirection() == Direction::UP){
-                    setPosition(getX(), block.getY() + block.getBlockSize());
-                }
-                else if(getDirection() == Direction::DOWN){
-                    setPosition(getX(), block.getY() - TANK_SIZE);
+                else if(block.getBlockType() == Block::GLASSES){
+                    
                 }
             }
         }
@@ -137,6 +142,7 @@ SDL_Rect Tank::getRect(){
 
 void Tank::init(){
     tanksTexture.loadFromFile(TANKS_PATH, SDL_TRUE);
+    tanksTexture.setBlendMode(SDL_BLENDMODE_BLEND);
 }
 
 bool Tank::canShot(){
