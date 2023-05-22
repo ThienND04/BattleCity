@@ -65,3 +65,11 @@ void Object::move(){
             break;
     }
 }
+
+void Object::setInvisible(bool invisible){
+    this->invisible = invisible;
+}
+
+bool Object::isInvisible(){
+    return invisible;
+}

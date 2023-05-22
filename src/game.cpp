@@ -157,8 +157,17 @@ void Game::delay(){
     std::this_thread::sleep_for(std::chrono::milliseconds(FRAME_DELAY));
 }
 
-void Game::objectsRender(){
+// render all
+void Game::gameRender(){
     // printf("Render all objects!\n");
+    map.render();
+    scoreRender();
+    player.render();
+
+    for(Bullet& bullet : bullets) bullet.render();
+    for(Bullet& enemyBullet: enemyBullets) enemyBullet.render();
+    for(Enemy& enemy: enemies) enemy.render();
+    for(Explosion& explosion: explosions) explosion.render();
 }
 
 void Game::onePlayer(){
@@ -181,14 +190,12 @@ void Game::onePlayer(){
         gameInput.clear();
         
         enemiesUpdate();
-        player.render();
         bulletsUpdate();
         explosionsUpdate();
 
+        hightScore = std::max(hightScore, score);
 
-        map.render();
-        scoreRender();
-        objectsRender();
+        gameRender();
 
         SDL_RenderPresent(gRenderer);
         delay();
@@ -204,7 +211,6 @@ void Game::twoPlayers(){
 }
 
 void Game::bulletsUpdate(){
-    
     for(int i = 0; i < bullets.size(); i ++){
         bool colide = false;
         bullets[i].move();
@@ -268,7 +274,7 @@ void Game::bulletsUpdate(){
             continue;
         }
 
-        bullets[i].render();
+        // bullets[i].render();
     }
 
     // update enemyBullets
@@ -277,6 +283,16 @@ void Game::bulletsUpdate(){
         enemyBullets[i].move();
 
         std::vector<Block>* blocks = map.getBlocks();
+
+        if(enemyBullets[i].hasCollision(player.getRect())){
+            explosions.push_back(Explosion(player.getX(), player.getY(), Explosion::BIG_EXPLOSION));
+
+            explosions.back().setPos(player.getX() + (Enemy::TANK_SIZE - explosions.back().getExSize()) / 2 + 1,\
+                    player.getY() + (Enemy::TANK_SIZE - explosions.back().getExSize()) / 2 + 1);
+            explosions.back().setType(Explosion::BIG_EXPLOSION);
+
+            player.setPosition(-100000, -10000);
+        }
 
         for(int j = 0; j < blocks->size(); j ++){
             if(blocks->at(j).getCanColide() && enemyBullets[i].hasCollision(blocks->at(j).getRect())){
@@ -302,7 +318,7 @@ void Game::bulletsUpdate(){
             continue;
         }
 
-        enemyBullets[i].render();
+        // enemyBullets[i].render();
     }
 }
 
@@ -357,26 +373,20 @@ void Game::enemiesUpdate(){
         }
         // printf("ENEMY speed: %d\n", enemy.getSpeed());
     }
-
-    // render enemies
-    for(Enemy enemy: enemies){
-        enemy.render();
-    }
 }
 
 void Game::explosionsUpdate(){
-    int curTime = SDL_GetTicks();
+    // int curTime = SDL_GetTicks();
     for(int i = 0; i < explosions.size(); i ++){
         if(explosions[i].isFinish()){
             unorderErase(explosions, i --);
-        }
-        else {
-            explosions[i].render();
         }
     }
 }
 
 bool Game::isGameOver(){
+    if(player.getX() < 0 || player.getY() < 0) return true;
+
     std::vector<Block> *blocks = map.getBlocks();
     for(int i = 0; i < blocks->size(); i ++){
         if(blocks->at(i).getBlockType() == Block::FLAG) return false;
@@ -387,7 +397,7 @@ bool Game::isGameOver(){
 void Game::scoreRender(){
     SDL_Color textColor = {255, 255, 255};
     Texture sc, hsc;
-    hsc.loadFromRenderedText("High score", textColor);
+    hsc.loadFromRenderedText(std::to_string(hightScore), textColor);
     sc.loadFromRenderedText(std::to_string(score), textColor);
     // printf("%d\n", (SCREEN_WIDTH + Block::SMALL_BLOCK_SIZE * map.getWidth() - sc.getWidth()) / 2);
 
@@ -421,11 +431,14 @@ void Game::playerUpdate(){
 }
 
 void Game::reset(){
+    score = 0;
+
     // set player's tank
     player.setTankColor(Tank::YELLOW);
     player.setDirection(UP);
-    player.setPosition(300, 423);
+    player.setPosition(150, 423);
     player.setSpeed(4);
+    player.setInvisible(false);;
 
     enemies.clear();
     bullets.clear();
@@ -441,7 +454,20 @@ void Game::gameOver(){
     for(int y = map.getHeight() * Block::SMALL_BLOCK_SIZE; y >= (map.getHeight() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getHeight()) / 2; y --){
         clearScreen();
 
+        explosionsUpdate();
+
+        // playerUpdate();
+        // gameInput.clear();
+        
+        enemiesUpdate();
+        bulletsUpdate();
+        explosionsUpdate();
+
+        // hightScore = std::max(hightScore, score);
+
+        gameRender();
         gameOverTexture.render((map.getWidth() * Block::SMALL_BLOCK_SIZE - gameOverTexture.getWidth()) / 2, y, NULL);
+
         SDL_RenderPresent(gRenderer);
         delay();
     }

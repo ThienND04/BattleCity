@@ -31,11 +31,17 @@ public:
     // xac dinh va cham
     bool hasCollision(SDL_Rect otherObject);
 
+    void setInvisible(bool invisible);
+
+    bool isInvisible();
+
 private:
     int x, y;
     int width, height;
     Direction direction;
     int speed;
+
+    bool invisible;
 };
 
 #endif

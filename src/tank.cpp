@@ -69,6 +69,8 @@ void Tank::step(Input* input, Map* map, std::vector<Bullet>* bullets){
 
         // xu li va cham va di chuyen khong hop le
         std::vector<Block>* blocks = map->getBlocks();
+
+        setInvisible(false);
         
         for(int i = 0; i < blocks->size(); i ++) {
             Block block = blocks->at(i);
@@ -90,7 +92,7 @@ void Tank::step(Input* input, Map* map, std::vector<Bullet>* bullets){
                     }
                 }
                 else if(block.getBlockType() == Block::GLASSES){
-                    
+                    setInvisible(true);
                 }
             }
         }
@@ -98,6 +100,9 @@ void Tank::step(Input* input, Map* map, std::vector<Bullet>* bullets){
 }
 
 void Tank::render(){
+    if(isInvisible()) tanksTexture.setAlpha(100);
+    else tanksTexture.setAlpha(255);
+    
     tanksTexture.renderEx(getX(), getY(), &clip, 90 * getDirection(), NULL);
 }
 

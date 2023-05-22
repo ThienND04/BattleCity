@@ -63,7 +63,7 @@ public:
 
     void scoreRender();
 
-    void objectsRender();
+    void gameRender();
 
     void playerUpdate();
 

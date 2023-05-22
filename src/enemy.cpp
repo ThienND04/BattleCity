@@ -44,23 +44,30 @@ void Enemy::step(Map* map, std::vector<Bullet>* bullets){
 
         // xu li va cham va di chuyen khong hop le
         std::vector<Block>* blocks = map->getBlocks();
+
+        setInvisible(false);
         
         for(int i = 0; i < blocks->size(); i ++) {
             Block block = blocks->at(i);
             SDL_Rect blockRect = block.getRect();
-            if(block.getCanColide() && hasCollision(blockRect)){
-                // printf("Colide!!\n");
-                if(getDirection() == Direction::LEFT){
-                    setPosition(block.getX() + block.getBlockSize(), getY());
+            if(block.getCanColide()) {
+                if(hasCollision(blockRect)){
+                    // printf("Colide!!\n");
+                    if(getDirection() == Direction::LEFT){
+                        setPosition(block.getX() + block.getBlockSize(), getY());
+                    }
+                    else if(getDirection() == Direction::RIGHT){
+                        setPosition(block.getX() - TANK_SIZE, getY());
+                    }
+                    else if(getDirection() == Direction::UP){
+                        setPosition(getX(), block.getY() + block.getBlockSize());
+                    }
+                    else if(getDirection() == Direction::DOWN){
+                        setPosition(getX(), block.getY() - TANK_SIZE);
+                    }
                 }
-                else if(getDirection() == Direction::RIGHT){
-                    setPosition(block.getX() - TANK_SIZE, getY());
-                }
-                else if(getDirection() == Direction::UP){
-                    setPosition(getX(), block.getY() + block.getBlockSize());
-                }
-                else if(getDirection() == Direction::DOWN){
-                    setPosition(getX(), block.getY() - TANK_SIZE);
+                else if(block.getBlockType() == Block::GLASSES){
+                    setInvisible(true);
                 }
             }
         }
